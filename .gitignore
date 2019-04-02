@@ -1,0 +1,12 @@
+\venv/
+\.idea/
+
+netguru/__pycache__/
+
+netguru/app/migrations/__pycache__/
+
+netguru/app/api/__pycache__/
+
+netguru/app/__pycache__/
+
+netguru/netguru/__pycache__/
