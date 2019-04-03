@@ -14,6 +14,10 @@ class Movie(models.Model):
     callback = models.CharField(verbose_name="JSONP callback name", max_length=100)
     version = models.CharField(verbose_name="API version", max_length=10)
     rank = models.IntegerField(verbose_name="Rank")
+    
+    
+class AssociateTable(models.Model):
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, verbose_name="Movie")
     comments = models.ForeignKey(Comments, on_delete=models.CASCADE, verbose_name="Commnets")
 
 
