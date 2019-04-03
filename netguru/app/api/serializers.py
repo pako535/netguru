@@ -5,7 +5,7 @@ from ..models import Comments, Movie, AssociateTable
 class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
-        fields = ('id', 'title', 'movie_type', 'page')
+        fields = ('id', 'title')
 
 
 class CommentsSerializer(serializers.ModelSerializer):
