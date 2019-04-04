@@ -13,38 +13,41 @@ class MovieListView(generics.ListAPIView):
     serializer_class = MovieSerializer
     
     def post(self, request):
-        title = request.data.get('title', None)
+        title = request.data.get()
+        if not title:
+            return Response({'Error': 'You didn\'t give the title'})
         response = requests.post('http://www.omdbapi.com/?t={0}&apikey=bf7c8b16'.format(title)).json()
         
-        # Nie dublowanie sie filmow, validacja title, sprawdzic czy zwracam obiekt
-        
-        if 'False' in response and title:
-            response = Movie.objects.create(
-                title=response.get('Title'),
-                year_of_release=response.get('Year'),
-                rated=response.get('Rated'),
-                released=response.get('Released'),
-                runtime=response.get('Runtime'),
-                genre=response.get('Genre'),
-                director=response.get('Director'),
-                writer=response.get('Writer'),
-                actors=response.get('Actors'),
-                plot=response.get('Plot'),
-                language=response.get('Language'),
-                country=response.get('Country'),
-                awards=response.get('Awards'),
-                poster=response.get('Poster'),
-                ratings=response.get('Ratings'),
-                metascore=response.get('Metascore'),
-                imdbRating=response.get('imdbRating'),
-                imdbVotes=response.get('imdbVotes'),
-                imdbID=response.get('imdbID'),
-                movie_type=response.get('Type'),
-                dvd=response.get('DVD'),
-                box_office=response.get('BoxOffice'),
-                production=response.get('Production'),
-                website=response.get('Website')
+        if 'False' not in response:
+            movie = Movie(
+                title=response.get(),
+                year_of_release=response.get(),
+                rated=response.get(),
+                released=response.get(),
+                runtime=response.get(),
+                genre=response.get(),
+                director=response.get(),
+                writer=response.get(),
+                actors=response.get(),
+                plot=response.get(),
+                language=response.get(),
+                country=response.get(),
+                awards=response.get(),
+                poster=response.get(),
+                ratings=response.get(),
+                metascore=response.get(),
+                imdbRating=response.get(),
+                imdbVotes=response.get(),
+                imdbID=response.get(),
+                movie_type=response.get(),
+                dvd=response.get(),
+                box_office=response.get(),
+                production=response.get(),
+                website=response.get()
             )
+            if not Movie.objects.filter(title=movie.title):
+                movie.save()
+                response = MovieSerializer(movie).data
         return Response(response)
 
 
@@ -57,15 +60,15 @@ class CommentsListView(generics.ListAPIView):
         by filtering against a `movie_id` query parameter in the URL.
         """
         queryset = Comments.objects.all()
-        movie_id = self.request.query_params.get('movie_id', None)
+        movie_id = self.request.query_params.get()
         if movie_id is not None:
             movies = AssociateTable.objects.filter(movie_id=movie_id)
             queryset = [movie.comments for movie in movies]
         return queryset
     
     def post(self, request):
-        movie_id = request.data.get('movie_id', None)
-        content = request.data.get('content')
+        movie_id = request.data.get()
+        content = request.data.get()
         movie = Movie.objects.filter(id=movie_id).first()
         if movie and content:
             try:
@@ -75,3 +78,9 @@ class CommentsListView(generics.ListAPIView):
             except IntegrityError:
                 return HttpResponse("Something go wrong")
         return HttpResponse("You pass incorrect movie id or content is empty")
+
+
+class TopView(generics.ListAPIView):
+    
+    def get_queryset(self):
+        pass
