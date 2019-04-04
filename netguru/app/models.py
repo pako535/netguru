@@ -30,9 +30,16 @@ class Movie(models.Model):
     box_office = models.CharField(verbose_name='BoxOffice', max_length=15)
     production = models.CharField(verbose_name='Production', max_length=100)
     website = models.URLField(verbose_name="Website")
-    rank = models.IntegerField(verbose_name="Rank", default=0)
-
+    total_comments = models.IntegerField(verbose_name="Total Comments", default=0)
+    
+    def __str__(self):
+        return "Title: {0}, Total comments: {1}".format(self.title, self.total_comments)
 
 class AssociateTable(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, verbose_name="Movie")
     comments = models.ForeignKey(Comments, on_delete=models.CASCADE, verbose_name="Commnets")
+
+    def save(self, *args, **kwargs):
+        self.movie.total_comments += 1
+        self.movie.save()
+        super(AssociateTable, self).save(*args, **kwargs)
