@@ -34,12 +34,16 @@ class Movie(models.Model):
     
     def __str__(self):
         return "Title: {0}, Total comments: {1}".format(self.title, self.total_comments)
+    
+    def __repr__(self):
+        return "Title: {0}, Total comments: {1}".format(self.title, self.total_comments)
 
-class AssociateTable(models.Model):
+
+class CommentsForMovie(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, verbose_name="Movie")
     comments = models.ForeignKey(Comments, on_delete=models.CASCADE, verbose_name="Commnets")
-
+    
     def save(self, *args, **kwargs):
         self.movie.total_comments += 1
         self.movie.save()
-        super(AssociateTable, self).save(*args, **kwargs)
+        super(CommentsForMovie, self).save(*args, **kwargs)

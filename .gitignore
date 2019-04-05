@@ -10,3 +10,13 @@ netguru/app/api/__pycache__/
 netguru/app/__pycache__/
 
 netguru/netguru/__pycache__/
+
+netguru/db\.sqlite3
+
+netguru/app/tests/__pycache__/__init__\.cpython-36\.pyc
+
+netguru/app/tests/__pycache__/test_comments\.cpython-36\.pyc
+
+netguru/app/tests/__pycache__/test_movies\.cpython-36\.pyc
+
+netguru/app/tests/__pycache__/test_movies\.cpython-36\.pyc\.2677180084016
