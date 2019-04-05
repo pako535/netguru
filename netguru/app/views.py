@@ -1,9 +1,9 @@
 import requests
+from rest_framework import filters
 from django.db import IntegrityError
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.http import HttpResponse
 
 from .models import Movie, Comments, CommentsForMovie
 from .api.serializers import MovieSerializer, CommentsSerializer
@@ -12,6 +12,8 @@ from .api.serializers import MovieSerializer, CommentsSerializer
 class MovieListView(generics.ListAPIView):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
+    filter_backends = (filters.OrderingFilter,)
+    ordering_fields = '__all__'
     
     def post(self, request):
         title = request.data.get('title', 'None')
@@ -67,8 +69,10 @@ class CommentsListView(generics.ListAPIView):
         return queryset
     
     def post(self, request):
-        movie_id = request.data.get('movie_id', None)
-        content = request.data.get('content', None)
+        movie_id = request.data.get('movie_id')
+        if not movie_id:
+            return Response({'Error': 'You pass incorrect movie id'})
+        content = request.data.get('content', "DUPA")
         movie = Movie.objects.filter(id=movie_id).first()
         if movie and content:
             try:
@@ -82,27 +86,28 @@ class CommentsListView(generics.ListAPIView):
 
 class TopListView(APIView):
     
-    def get(self, request, format=None):
-        self.start_date = self.request.query_params.get('start_date', None)
-        self.end_date = self.request.query_params.get('end_date', None)
-        if not self._check_if_start_and_end_date_exist():
+    def get(self, request):
+        start_date = self.request.query_params.get('start_date', None)
+        end_date = self.request.query_params.get('end_date', None)
+        if not self._check_if_start_and_end_date_exist(start_date, end_date):
             return Response(
                 dict(
                     message='You must enter the beginning and end of the data range '
                             'for eg. \'/top/?start_date=0&end_date=1\'',
-                    start_date=self.start_date,
-                    end_date=self.end_date
+                    start_date=start_date,
+                    end_date=end_date
                 )
             )
         
-        response = self._prepare_response()
+        response = self._prepare_response(start_date, end_date)
         return Response(response)
     
-    def _prepare_response(self):
+    @staticmethod
+    def _prepare_response(start_date, end_date):
         movies = Movie.objects. \
             extra({'year_of_release_uint': 'CAST(year_of_release as UNSIGNED)'}). \
-            filter(year_of_release__gte=self.start_date). \
-            filter(year_of_release__lte=self.end_date). \
+            filter(year_of_release__gte=start_date). \
+            filter(year_of_release__lte=end_date). \
             order_by('-total_comments')
         response = []
         rank_counter = 0
@@ -118,7 +123,8 @@ class TopListView(APIView):
         
         return response
     
-    def _check_if_start_and_end_date_exist(self):
-        if self.start_date is None and self.end_date is None:
+    @staticmethod
+    def _check_if_start_and_end_date_exist(start_date, end_date):
+        if start_date is None and end_date is None:
             return False
         return True
