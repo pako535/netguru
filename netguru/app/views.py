@@ -20,8 +20,9 @@ class MovieListView(generics.ListAPIView):
         if not title or title == 'None':
             return Response({'Error': 'You didn\'t give the title'})
         response = requests.post('http://www.omdbapi.com/?t={0}&apikey=bf7c8b16'.format(title)).json()
-        
-        if 'False' not in response and not Movie.objects.filter(title=response.get('Title', 'None')):
+        if response.get('Response') == 'False':
+            return Response(response)
+        if not Movie.objects.filter(title=response.get('Title')):
             movie = Movie(
                 title=response.get('Title', 'None'),
                 year_of_release=response.get('Year', 'None'),
